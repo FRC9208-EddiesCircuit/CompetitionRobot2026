@@ -14,7 +14,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 public class IntakePivotSubsystem extends SubsystemBase {
   /** Creates a new IntakePivotSubsystem. */
   PIDController pivotPID = new PIDController(1, 0, 0);
-  TalonFX intakePivotMotor = new TalonFX(52);
+  TalonFX intakePivotMotor = new TalonFX(51);
   public IntakePivotSubsystem() {}
 
   @Override

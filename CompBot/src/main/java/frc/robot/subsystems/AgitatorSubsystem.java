@@ -12,7 +12,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class AgitatorSubsystem extends SubsystemBase {
   /** Creates a new AgitatorSubsystem. */
-  SparkMax agitatorMotor = new SparkMax(956712, MotorType.kBrushless);
+  SparkMax agitatorMotor = new SparkMax(53, MotorType.kBrushless);
   public AgitatorSubsystem() {
     //Setting up configurations for the agitatorMotor
     SparkMaxConfig agitatorConfig = new SparkMaxConfig();

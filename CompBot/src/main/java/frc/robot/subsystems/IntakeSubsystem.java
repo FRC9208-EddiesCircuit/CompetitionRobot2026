@@ -14,12 +14,12 @@ import com.ctre.phoenix6.signals.MotorOutputStatusValue;
 import edu.wpi.first.wpilibj.XboxController;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 
-public class IntakeSubSystem extends SubsystemBase {
+public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubSystem. */
   private double intakeSpeed = .25;
   TalonFX intakeMotor = new TalonFX(52);
   //the motor Id is random
-  public IntakeSubSystem() {
+  public IntakeSubsystem() {
     TalonFXConfiguration intakeConfiguration = new TalonFXConfiguration();
     intakeConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     intakeMotor.getConfigurator().apply(intakeConfiguration);
