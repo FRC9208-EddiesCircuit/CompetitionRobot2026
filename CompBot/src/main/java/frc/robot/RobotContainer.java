@@ -68,12 +68,12 @@ public class RobotContainer {
   private final Joystick driveJS = new Joystick(2);
 
   //SWERVE REQUESTS
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.FieldCentricFacingAngle driveAndAimHub = new SwerveRequest.FieldCentricFacingAngle()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
-            .withHeadingPID(1.5,0,0).withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+    .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+  private final SwerveRequest.FieldCentricFacingAngle driveAndAimHub = new SwerveRequest.FieldCentricFacingAngle()
+    .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
+    .withHeadingPID(1.5,0,0).withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
 
   public RobotContainer() {
@@ -84,7 +84,6 @@ public class RobotContainer {
     drivetrain.registerTelemetry(logger::telemeterize);
 
     configureBindings();
-
   }
 
   /*
@@ -123,6 +122,7 @@ public class RobotContainer {
           )
       )
     );
+    
     new JoystickButton(driveJS, 7).whileTrue(//Change button, test if transitions from motion
       AutoBuilder.pathfindToPose(
         new Pose2d(15.18, 4.323, new Rotation2d(0)),//15.18, 4.323
@@ -149,7 +149,6 @@ public class RobotContainer {
         hubPose.getX() - drivetrain.getState().Pose.getX(),
         hubPose.getY() - drivetrain.getState().Pose.getY()
     );
-
     return angleToHub;
   }
 
@@ -159,6 +158,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return  autoChooser.getSelected();
+    return autoChooser.getSelected();
   }
 }
