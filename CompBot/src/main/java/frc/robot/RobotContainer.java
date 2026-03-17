@@ -7,12 +7,26 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.FeedCmd;
+import frc.robot.commands.IntakeCmd;
+import frc.robot.commands.IntakePivotCmd;
+import frc.robot.commands.ShootCmd;
+import frc.robot.commands.ShootHubCmd;
+import frc.robot.commands.TestHoodCmd;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.AgitatorSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.HoodSubsystem;
+import frc.robot.subsystems.IntakePivotSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -36,7 +50,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   
-  private double MaxSpeed = 0.6 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+  private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
   private double MaxAngularRate = 0.7 * RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
   private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -53,14 +67,19 @@ public class RobotContainer {
       4.0346376,
       new Rotation2d()
   );
-
-  //AUTON/PATHPLANNER
+  //AUTON/PATHPLANNER aka 67
 
   /* Path follower */
   private final SendableChooser<Command> autoChooser;
 
   //SUBSYSTEMS
-  public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+  private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  private final IntakePivotSubsystem intakePivotSubsystem = new IntakePivotSubsystem();
+  private final AgitatorSubsystem agitatorSubsystem = new AgitatorSubsystem();
+  private final FeederSubsystem feederSubsystem = new FeederSubsystem();
+  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+  private final HoodSubsystem hoodSubsystem = new HoodSubsystem();
 
   //JOYSTICKS
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -73,7 +92,7 @@ public class RobotContainer {
     .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
   private final SwerveRequest.FieldCentricFacingAngle driveAndAimHub = new SwerveRequest.FieldCentricFacingAngle()
     .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
-    .withHeadingPID(1.5,0,0).withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    .withHeadingPID(3,0,0).withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
 
   public RobotContainer() {
@@ -81,10 +100,17 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser("Test Auto");
     SmartDashboard.putData("Auto Mode", autoChooser);
 
+
+    NamedCommands.registerCommand("ShootCmd", new ShootCmd(shooterSubsystem, hoodSubsystem, agitatorSubsystem, feederSubsystem, () -> true, () -> false, () -> metersToHub(), () -> drivetrain.getState().Pose));
     drivetrain.registerTelemetry(logger::telemeterize);
 
     configureBindings();
   }
+
+  public double getDrivetrainVelocity(){
+    return drivetrain.getState().Speeds.vxMetersPerSecond;
+  }
+
 
   /*
    * Sets hub pose depending on alliance.
@@ -112,6 +138,38 @@ public class RobotContainer {
     );
     //DRIVEJS BUTTONS
 
+    new JoystickButton(driveJS, 10).whileTrue(
+      drivetrain.runOnce(drivetrain::dontTellCTREImDoingThis)
+    );
+
+    //new JoystickButton(driveJS, 6).whileTrue(moveBot());
+    
+    new JoystickButton(driveJS, 6).whileTrue(//Change button, test if transitions from motion
+      autoChooser.getSelected()
+    );
+
+        new JoystickButton(driveJS, 7).whileTrue(//Change button, test if transitions from motion
+      AutoBuilder.pathfindToPose(
+        new Pose2d(drivetrain.getState().Pose.getX() - 1, drivetrain.getState().Pose.getY(), new Rotation2d(0)),//15.18, 4.323
+        new PathConstraints(
+          3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)
+        ),
+        0
+      )
+    );
+
+    new JoystickButton(driveJS, 8).whileTrue(//Change button, test if transitions from motion
+      AutoBuilder.pathfindToPose(
+        new Pose2d(drivetrain.getState().Pose.getX(), drivetrain.getState().Pose.getY(), drivetrain.getState().Pose.getRotation().plus(Rotation2d.fromDegrees(180))),//15.18, 4.323
+        new PathConstraints(
+          3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)
+        ),
+        0
+      )
+    );
+    //TWISTJS BUTTONS
+    new JoystickButton(twistJS, 2).whileTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+
     new JoystickButton(twistJS, 1).whileTrue(
       drivetrain.applyRequest(() ->
         driveAndAimHub
@@ -122,21 +180,38 @@ public class RobotContainer {
           )
       )
     );
-    
-    new JoystickButton(driveJS, 7).whileTrue(//Change button, test if transitions from motion
-      AutoBuilder.pathfindToPose(
-        new Pose2d(15.18, 4.323, new Rotation2d(0)),//15.18, 4.323
-        new PathConstraints(
-          3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)
-        ),
-        0
-      )
-    );
-    //TWISTJS BUTTONS
-    new JoystickButton(twistJS, 2).whileTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
     //CONTROLLER BUTTONS
-
+    controller.a().whileTrue(new TestHoodCmd(hoodSubsystem));
+    controller.b().whileTrue(new FeedCmd(agitatorSubsystem, feederSubsystem));
+    intakePivotSubsystem.setDefaultCommand(
+      new IntakePivotCmd(
+        intakePivotSubsystem,
+        () -> controller.x().getAsBoolean()
+      )
+    );
+    //find axis, left trigger
+    controller.axisGreaterThan(2, 0.1).whileTrue(
+      new IntakeCmd(
+        intakeSubsystem, 
+        intakePivotSubsystem,
+        agitatorSubsystem,
+        feederSubsystem
+      )
+    );
+    //find axis, right trigger
+    controller.axisGreaterThan(3, 0.1).whileTrue(
+      new ShootCmd(
+        shooterSubsystem, 
+        hoodSubsystem, 
+        agitatorSubsystem, 
+        feederSubsystem, 
+        () -> twistJS.getRawButton(1), 
+        () -> twistJS.getRawButton(3), 
+        () -> metersToHub(),
+        () -> drivetrain.getState().Pose
+      )
+    );
 
   }
 
@@ -146,10 +221,22 @@ public class RobotContainer {
    */
   public Rotation2d calcHubAngle(){
     angleToHub = new Rotation2d(
+        drivetrain.getState().Pose.getX() - hubPose.getX(),//hubPose.getX() - drivetrain.getState().Pose.getX(),
+        drivetrain.getState().Pose.getY() - hubPose.getY()//hubPose.getY() - drivetrain.getState().Pose.getY()
+    );
+    return angleToHub;
+  }
+
+  public Rotation2d calcHubAngleBlue(){
+    angleToHub = new Rotation2d(
         hubPose.getX() - drivetrain.getState().Pose.getX(),
         hubPose.getY() - drivetrain.getState().Pose.getY()
     );
     return angleToHub;
+  }
+
+  public double metersToHub(){
+    return drivetrain.getState().Pose.getTranslation().getDistance(hubPose.getTranslation());
   }
 
   /**
@@ -158,6 +245,11 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    Command autoCommand = autoChooser.getSelected();
+    String autoName = autoCommand.getName();
+    PathPlannerAuto auto = new PathPlannerAuto(autoName);
+    Pose2d startingPose = auto.getStartingPose();
+    drivetrain.resetPose(startingPose);
+    return auto;
   }
 }

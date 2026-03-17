@@ -4,14 +4,16 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix6.hardware.TalonFX;
 
-
-
 public class FeederSubsystem extends SubsystemBase {
-  /** Creates a new FeederSubsystem. */
-  TalonFX feederMotor = new TalonFX(54);
+
+  private TalonFX feederMotor = new TalonFX(54);
+  private DigitalInput leftSensor = new DigitalInput(8);
+  private DigitalInput rightSensor = new DigitalInput(9);
+
   public FeederSubsystem() {}
 
   @Override
@@ -23,5 +25,10 @@ public class FeederSubsystem extends SubsystemBase {
   }
   public void stopFeeder() {
     feederMotor.stopMotor();
+  }
+
+  public boolean getFeederFull(){
+    System.out.println(leftSensor.get() || rightSensor.get());
+    return leftSensor.get() || rightSensor.get();
   }
 }

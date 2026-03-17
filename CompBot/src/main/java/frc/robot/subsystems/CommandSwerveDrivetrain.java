@@ -54,6 +54,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     private final Field2d field = new Field2d();
 
+    private double translationKP = 1.5;
+    private double translationKI = 0;
+    private double translationKD = 0;
+
+    private double rotationKP = 15.5;
+    private double rotationKI = 0;
+    private double rotationKD = 0;
+
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
     /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
@@ -160,6 +168,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         SmartDashboard.putData("Field", field);
+
+        SmartDashboard.putNumber("TranslationKP", 1);
+        SmartDashboard.putNumber("TranslationKI", 0);
+        SmartDashboard.putNumber("TranslationKD", 0);
+
+        SmartDashboard.putNumber("rotationKP", 7);
+        SmartDashboard.putNumber("rotationKI", 0);
+        SmartDashboard.putNumber("rotationKD", 0);
+
         configureAutoBuilder();
 
     }
@@ -188,6 +205,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         SmartDashboard.putData("Field", field);
+/* 
+        SmartDashboard.putNumber("TranslationKP", 1);
+        SmartDashboard.putNumber("TranslationKI", 0);
+        SmartDashboard.putNumber("TranslationKD", 0);
+
+        SmartDashboard.putNumber("rotationKP", 7);
+        SmartDashboard.putNumber("rotationKI", 0);
+        SmartDashboard.putNumber("rotationKD", 0);
+*/
         configureAutoBuilder();
     }
 
@@ -223,6 +249,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         SmartDashboard.putData("Field", field);
+/* 
+        SmartDashboard.putNumber("TranslationKP", 1);
+        SmartDashboard.putNumber("TranslationKI", 0);
+        SmartDashboard.putNumber("TranslationKD", 0);
+
+        SmartDashboard.putNumber("rotationKP", 7);
+        SmartDashboard.putNumber("rotationKI", 0);
+        SmartDashboard.putNumber("rotationKD", 0);
+*/
+        configureAutoBuilder();
+    }
+
+    public void dontTellCTREImDoingThis(){
         configureAutoBuilder();
     }
 
@@ -241,15 +280,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 ),
                 new PPHolonomicDriveController(
                     // PID constants for translation
-                    new PIDConstants(1, 0, 0),
+                    new PIDConstants(translationKP, translationKI, translationKD), //1, 0, 0
                     // PID constants for rotation
-                    new PIDConstants(7, 0, 0)
+                    new PIDConstants(rotationKP, rotationKI, rotationKD)  //7, 0, 0
                 ),
                 config,
                 // Assume the path needs to be flipped for Red vs Blue, this is normally the case
                 () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
                 this // Subsystem for requirements
             );
+        System.out.println("Configured AutoBuilder");
         } catch (Exception ex) {
             DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
             System.out.println("Failed to load PathPlanner config and configure AutoBuilder" + ex.getStackTrace());
@@ -352,6 +392,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
         field.getObject("Drivetrain").setPose(this.getState().Pose);
+
+        translationKP = SmartDashboard.getNumber("TranslationKP", 1);
+        translationKI = SmartDashboard.getNumber("TranslationKI", 0);
+        translationKD = SmartDashboard.getNumber("TranslationKD", 0);
+
+        rotationKP = SmartDashboard.getNumber("rotationKP", 7);
+        rotationKI = SmartDashboard.getNumber("rotationKI", 0);
+        rotationKD = SmartDashboard.getNumber("rotationKD", 0);
+
         updateOdometry();
     }
 

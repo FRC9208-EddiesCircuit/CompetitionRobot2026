@@ -4,14 +4,85 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ShooterSubsystem extends SubsystemBase {
+
+  private final TalonFX lShooterLeader = new TalonFX(55);
+  private final TalonFX rShooterFollower = new TalonFX(56);
+
+  private final TalonFXConfiguration leftConfig = new TalonFXConfiguration();
+  private final TalonFXConfiguration rightConfig = new TalonFXConfiguration();
+
+  private final BangBangController shooterController = new BangBangController(3);
+
+  public enum shotState {
+    HUB,
+    PASS,
+    DEFAULT
+  }
+    
   /** Creates a new ShooterSubsystem. */
-  public ShooterSubsystem() {}
+  public ShooterSubsystem() {
+    leftConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    leftConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+    rightConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    rightConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+    lShooterLeader.getConfigurator().apply(leftConfig);
+    rShooterFollower.getConfigurator().apply(rightConfig);
+
+    //TEST IF WORKS
+    rShooterFollower.setControl(new Follower(lShooterLeader.getDeviceID(), MotorAlignmentValue.Opposed));
+  }
+
+  /* only used for testing, do not use */
+  public void testRightShooter(double rightSpeed){
+    rShooterFollower.set(rightSpeed);
+  }
+  public void testLeftShooter(double leftSpeed){
+    lShooterLeader.set(leftSpeed);
+  }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
   }
+
+  public void setShooter(double shooterSpeed){
+    lShooterLeader.set(shooterSpeed);
+  }
+
+  public void stopMotors(){
+    lShooterLeader.stopMotor();
+  }
+
+  public double getShooterVelocity(){
+    return lShooterLeader.getVelocity().getValueAsDouble();
+  }
+
+  //BANG BANG VELOCITY CONTROL (Needs testing)
+  public void setShooterVelocity(double RPMs){
+    lShooterLeader.set(
+      shooterController.calculate(
+        lShooterLeader.getVelocity().getValueAsDouble(),
+        RPMs
+      )
+    );
+  }
+
+
+
+
+
+  
 }

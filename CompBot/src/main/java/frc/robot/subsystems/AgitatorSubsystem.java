@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -13,11 +15,14 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 public class AgitatorSubsystem extends SubsystemBase {
   /** Creates a new AgitatorSubsystem. */
   SparkMax agitatorMotor = new SparkMax(53, MotorType.kBrushless);
+  SparkMaxConfig agitatorConfig = new SparkMaxConfig();
+
   public AgitatorSubsystem() {
     //Setting up configurations for the agitatorMotor
-    SparkMaxConfig agitatorConfig = new SparkMaxConfig();
     agitatorConfig.idleMode(IdleMode.kCoast);
     agitatorConfig.inverted(false);
+
+    agitatorMotor.configure(agitatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override

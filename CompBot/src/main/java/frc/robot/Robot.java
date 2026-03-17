@@ -20,6 +20,8 @@ public class Robot extends TimedRobot {
   private final RobotContainer m_robotContainer;
   private boolean hasAlliance;
 
+  private double velocity = 0;
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -86,7 +88,12 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    //if(m_robotContainer.getDrivetrainVelocity() > velocity) velocity = m_robotContainer.getDrivetrainVelocity();
+
+    //System.out.println(m_robotContainer.getDrivetrainVelocity());
+    //System.out.println(velocity);
+  }
 
   @Override
   public void testInit() {
