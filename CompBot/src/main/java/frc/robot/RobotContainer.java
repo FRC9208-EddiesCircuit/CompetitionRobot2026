@@ -13,6 +13,10 @@ import frc.robot.commands.IntakePivotCmd;
 import frc.robot.commands.ShootCmd;
 import frc.robot.commands.ShootHubCmd;
 import frc.robot.commands.TestHoodCmd;
+import frc.robot.commands.AutoCommands.AutoPivotDownCmd;
+import frc.robot.commands.PivotCmds.PivotDownCmd;
+import frc.robot.commands.PivotCmds.PivotMidCmd;
+import frc.robot.commands.PivotCmds.PivotUpCmd;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.AgitatorSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -90,9 +94,14 @@ public class RobotContainer {
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
     .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
     .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-  private final SwerveRequest.FieldCentricFacingAngle driveAndAimHub = new SwerveRequest.FieldCentricFacingAngle()
+  //apply pids here
+    private final SwerveRequest.FieldCentricFacingAngle driveAndAimHub = new SwerveRequest.FieldCentricFacingAngle()
     .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
-    .withHeadingPID(3,0,0).withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    .withHeadingPID(5,0,0).withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+  //Tune the pid here 
+  private final SwerveRequest.FieldCentricFacingAngle driveAndPass = new SwerveRequest.FieldCentricFacingAngle()
+    .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
+    .withHeadingPID(5,0,0).withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
 
   public RobotContainer() {
@@ -101,9 +110,22 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Mode", autoChooser);
 
 
-    NamedCommands.registerCommand("ShootCmd", new ShootCmd(shooterSubsystem, hoodSubsystem, agitatorSubsystem, feederSubsystem, () -> true, () -> false, () -> metersToHub(), () -> drivetrain.getState().Pose));
+    NamedCommands.registerCommand("ShootCmd", new ShootCmd(shooterSubsystem, hoodSubsystem, agitatorSubsystem, feederSubsystem, () -> true, () -> false, () -> metersToHub(), () -> metersToPass()));
+    NamedCommands.registerCommand("IntakeCmd", new IntakeCmd(intakeSubsystem, agitatorSubsystem, feederSubsystem, () -> 0.7));
+    NamedCommands.registerCommand("PivotCmd", new PivotDownCmd(intakePivotSubsystem, () -> intakePivotSubsystem.intakeStopped()));
+    NamedCommands.registerCommand("AimHubCmd", 
+      drivetrain.applyRequest(() ->
+        driveAndAimHub
+          .withVelocityX(0)
+          .withVelocityY(0)
+          .withTargetDirection(
+            calcHubAngle()
+          )
+      ).withTimeout(0.67)
+    );
+    NamedCommands.registerCommand("PivotMidCmd", new PivotMidCmd(intakePivotSubsystem, () -> intakePivotSubsystem.intakeStopped()));
     drivetrain.registerTelemetry(logger::telemeterize);
-
+ 
     configureBindings();
   }
 
@@ -148,25 +170,12 @@ public class RobotContainer {
       autoChooser.getSelected()
     );
 
-        new JoystickButton(driveJS, 7).whileTrue(//Change button, test if transitions from motion
-      AutoBuilder.pathfindToPose(
-        new Pose2d(drivetrain.getState().Pose.getX() - 1, drivetrain.getState().Pose.getY(), new Rotation2d(0)),//15.18, 4.323
-        new PathConstraints(
-          3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)
-        ),
-        0
-      )
-    );
 
-    new JoystickButton(driveJS, 8).whileTrue(//Change button, test if transitions from motion
-      AutoBuilder.pathfindToPose(
-        new Pose2d(drivetrain.getState().Pose.getX(), drivetrain.getState().Pose.getY(), drivetrain.getState().Pose.getRotation().plus(Rotation2d.fromDegrees(180))),//15.18, 4.323
-        new PathConstraints(
-          3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)
-        ),
-        0
-      )
-    );
+
+/* 
+    new JoystickButton(driveJS, 9).whileTrue(
+      intakePivotSubsystem.resetIntakePivotEncoder()
+    );*/
     //TWISTJS BUTTONS
     new JoystickButton(twistJS, 2).whileTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
@@ -181,25 +190,39 @@ public class RobotContainer {
       )
     );
 
-    //CONTROLLER BUTTONS
-    controller.a().whileTrue(new TestHoodCmd(hoodSubsystem));
-    controller.b().whileTrue(new FeedCmd(agitatorSubsystem, feederSubsystem));
+    new JoystickButton(twistJS, 3).whileTrue(  //find button
+      drivetrain.applyRequest(() ->
+        driveAndPass
+          .withVelocityX(-driveJS.getRawAxis(1) * MaxSpeed)
+          .withVelocityY(-driveJS.getRawAxis(0) * MaxSpeed)
+          .withTargetDirection(
+            calcPassAngle()
+          )
+      )
+    );
+
+
     intakePivotSubsystem.setDefaultCommand(
       new IntakePivotCmd(
         intakePivotSubsystem,
-        () -> controller.x().getAsBoolean()
+        () -> controller.a().getAsBoolean(),
+        () -> controller.b().getAsBoolean(),
+        () -> controller.axisGreaterThan(2, 0.1).getAsBoolean()
       )
     );
-    //find axis, left trigger
+
     controller.axisGreaterThan(2, 0.1).whileTrue(
       new IntakeCmd(
         intakeSubsystem, 
-        intakePivotSubsystem,
+        
         agitatorSubsystem,
-        feederSubsystem
+        feederSubsystem,
+        () -> controller.getLeftTriggerAxis()
       )
     );
-    //find axis, right trigger
+
+
+
     controller.axisGreaterThan(3, 0.1).whileTrue(
       new ShootCmd(
         shooterSubsystem, 
@@ -208,10 +231,13 @@ public class RobotContainer {
         feederSubsystem, 
         () -> twistJS.getRawButton(1), 
         () -> twistJS.getRawButton(3), 
-        () -> metersToHub(),
-        () -> drivetrain.getState().Pose
+        () -> drivetrain.getState().Pose.getTranslation().getDistance(hubPose.getTranslation()),
+        () -> metersToPass()
       )
     );
+
+    controller.y().onTrue(intakePivotSubsystem.resetIntakePivotEncoder());
+
 
   }
 
@@ -219,6 +245,43 @@ public class RobotContainer {
    * Calculates the angle at which the hub is to the robot.
    * Used in driveAndAimHub SwerveRequest.
    */
+
+  public Rotation2d calcHubAngle(){
+    if (DriverStation.getAlliance().get() == Alliance.Red) {
+      angleToHub = new Rotation2d(
+        drivetrain.getState().Pose.getX() - hubPose.getX(),//hubPose.getX() - drivetrain.getState().Pose.getX(),
+        drivetrain.getState().Pose.getY() - hubPose.getY()//hubPose.getY() - drivetrain.getState().Pose.getY()
+      );
+      return angleToHub;
+    }else if(DriverStation.getAlliance().get() == Alliance.Blue) {
+      angleToHub = new Rotation2d(
+        hubPose.getX() - drivetrain.getState().Pose.getX(),
+        hubPose.getY() - drivetrain.getState().Pose.getY()
+      );
+      return angleToHub;
+    }else{
+      return new Rotation2d(0);
+    }
+  }
+
+  public Rotation2d calcPassAngle(){
+    if (DriverStation.getAlliance().get() == Alliance.Red) {
+      angleToHub = new Rotation2d(
+        drivetrain.getState().Pose.getX() - 14.5,
+        0
+      );
+      return angleToHub;
+    }else if(DriverStation.getAlliance().get() == Alliance.Blue) {
+      angleToHub = new Rotation2d(
+        2.5 - drivetrain.getState().Pose.getX(),
+        0
+      );
+      return angleToHub;
+    }else{
+      return new Rotation2d(0);
+    }
+  }
+/* 
   public Rotation2d calcHubAngle(){
     angleToHub = new Rotation2d(
         drivetrain.getState().Pose.getX() - hubPose.getX(),//hubPose.getX() - drivetrain.getState().Pose.getX(),
@@ -233,10 +296,20 @@ public class RobotContainer {
         hubPose.getY() - drivetrain.getState().Pose.getY()
     );
     return angleToHub;
-  }
+  }*/
 
   public double metersToHub(){
     return drivetrain.getState().Pose.getTranslation().getDistance(hubPose.getTranslation());
+  }
+
+  public double metersToPass(){
+    if (DriverStation.getAlliance().get() == Alliance.Red) {
+      return Math.abs(drivetrain.getState().Pose.getX() - 14.5);
+    }else if(DriverStation.getAlliance().get() == Alliance.Blue) {
+      return Math.abs(2.5 - drivetrain.getState().Pose.getX());
+    }else{
+      return 0;
+    }
   }
 
   /**

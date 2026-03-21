@@ -23,14 +23,14 @@ public class ShootCmd extends Command {
   private AgitatorSubsystem agitatorSubsystem;
   private FeederSubsystem feederSubsystem;
   private Supplier<Boolean> hubShot, passShot;
-  private Supplier<Double> metersToHub;
-  private Supplier<Pose2d> currentPose;
+  private Supplier<Double> metersToHub, metersToPass;
   private shotState currentState;
 
   private FeedCmd feedCmd;// = new FeedCmd(agitatorSubsystem, feederSubsystem);
 
   //private double shooterSpeed = 0.55;
-  private double shooterVelocity = 42.5; //RPS
+  private double defaultShooterVelocity = 42.5;
+  private double shooterVelocity = defaultShooterVelocity; //RPS
   private double calculatedVelocity;
   private boolean isFeeding = false;
 
@@ -44,7 +44,7 @@ public class ShootCmd extends Command {
     FeederSubsystem feederSubsystem, 
     Supplier<Boolean> hubShot, Supplier<Boolean> passShot, 
     Supplier<Double> metersToHub, 
-    Supplier<Pose2d> currentPose) 
+    Supplier<Double> metersToPass) 
   {
     this.shooterSubsystem = shooterSubsystem;
     this.hoodSubsystem = hoodSubsystem;
@@ -53,9 +53,9 @@ public class ShootCmd extends Command {
     this.hubShot = hubShot;
     this.passShot = passShot;
     this.metersToHub = metersToHub;
-    this.currentPose = currentPose;
+    this.metersToPass = metersToPass;
 
-    addRequirements(shooterSubsystem);//, hoodSubsystem);
+    addRequirements(shooterSubsystem, hoodSubsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -74,7 +74,7 @@ public class ShootCmd extends Command {
     }else if(passShot.get()){
       currentState = shotState.PASS;
     }else{
-      currentState = shotState.HUB;//shotState.DEFAULT;
+      currentState = shotState.DEFAULT;
     }
 
     switch (currentState) {
@@ -83,18 +83,19 @@ public class ShootCmd extends Command {
         shooterVelocity = adjustShooterVelocity(metersToHub.get());//(meters);
         break;
       case PASS:
-        hoodSubsystem.adjustToPass(currentPose.get());
+        hoodSubsystem.adjustToPass(metersToPass.get());
+        shooterVelocity = adjustShooterVelocity(metersToPass.get());
         break;
       case DEFAULT:
-        //hoodSubsystem.adjustToDefaultPosition();
+        hoodSubsystem.adjustToDefaultPosition();
+        shooterVelocity = defaultShooterVelocity;
         break;    
       default:
         break;
     }
-    //shooterSubsystem.setShooter(shooterSpeed);
+
     shooterSubsystem.setShooterVelocity(shooterVelocity);
-    
-    System.out.println("Shooter Velocity: " + shooterSubsystem.getShooterVelocity());
+
     if(shooterSubsystem.getShooterVelocity() >= shooterVelocity && !isFeeding){//shooterSubsystem.getShooterVelocity() >= shooterVelocity &&
       isFeeding = true;
       CommandScheduler.getInstance().schedule(feedCmd);

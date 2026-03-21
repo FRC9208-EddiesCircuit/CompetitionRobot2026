@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import java.util.function.Supplier;
+
 import org.opencv.features2d.AgastFeatureDetector;
 
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -18,32 +20,30 @@ import frc.robot.subsystems.IntakeSubsystem;
 public class IntakeCmd extends Command {
 
   IntakeSubsystem intakeSubsystem;
-  IntakePivotSubsystem intakePivotSubsystem;
   AgitatorSubsystem agitatorSubsystem;
   FeederSubsystem feederSubsystem;
-
+  Supplier<Double> intakeSpeed;
   private PreFeedCmd preFeedCmd;
 
-  public IntakeCmd(IntakeSubsystem intakeSubsystem, IntakePivotSubsystem intakePivotSubsystem, AgitatorSubsystem agitatorSubsystem, FeederSubsystem feederSubsystem) {
+  public IntakeCmd(IntakeSubsystem intakeSubsystem, AgitatorSubsystem agitatorSubsystem, FeederSubsystem feederSubsystem, Supplier<Double> intakeSpeed) {
     this.intakeSubsystem = intakeSubsystem;
-    this.intakePivotSubsystem = intakePivotSubsystem;
     this.agitatorSubsystem = agitatorSubsystem;
     this.feederSubsystem = feederSubsystem;
+    this.intakeSpeed = intakeSpeed;
 
-    addRequirements(intakeSubsystem, intakePivotSubsystem);
+    addRequirements(intakeSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    preFeedCmd = new PreFeedCmd(agitatorSubsystem, feederSubsystem);
-    if(intakePivotSubsystem.isUp()){
-      /*CommandScheduler.getInstance().schedule(
+    //preFeedCmd = new PreFeedCmd(agitatorSubsystem, feederSubsystem);
+    /*if(intakePivotSubsystem.isUp()){
+      CommandScheduler.getInstance().schedule(
         intakePivotSubsystem.pivotDown()
           .onlyWhile(() -> !intakePivotSubsystem.isDown())
-          .andThen(intakePivotSubsystem.stopPivot())
-      );*/
-    }
+      );
+    }*/
     /*CommandScheduler.getInstance().schedule(
       preFeedCmd
 
@@ -53,6 +53,7 @@ public class IntakeCmd extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    //intakeSubsystem.setSpeed(intakeSpeed.get());
     intakeSubsystem.intake();
   }
 

@@ -12,7 +12,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 
 public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubSystem. */
-  private double intakeSpeed = .30;
+  private double intakeSpeed = .70;
   private TalonFX intakeMotor = new TalonFX(51);
   private TalonFXConfiguration intakeConfiguration = new TalonFXConfiguration();
 

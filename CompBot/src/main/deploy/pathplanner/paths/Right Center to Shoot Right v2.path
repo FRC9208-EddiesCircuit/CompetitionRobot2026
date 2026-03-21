@@ -3,32 +3,53 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.595,
-        "y": 2.674
+        "x": 7.630448717948719,
+        "y": 2.2675128205128217
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5950000000000006,
-        "y": 2.6740000000000004
+        "x": 7.1536923076923085,
+        "y": 0.5814230769230775
+      },
+      "isLocked": false,
+      "linkedName": "Right to Angled Center v2"
+    },
+    {
+      "anchor": {
+        "x": 5.293179487179487,
+        "y": 0.6279358974358968
+      },
+      "prevControl": {
+        "x": 5.802269584417603,
+        "y": 0.5875319214646189
+      },
+      "nextControl": {
+        "x": 4.560602564102564,
+        "y": 0.686076923076921
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.595,
-        "y": 1.674
+        "x": 2.6303205128205143,
+        "y": 1.290743589743589
       },
       "prevControl": {
-        "x": 2.595,
-        "y": 1.6739999999999997
+        "x": 3.176846153846155,
+        "y": 0.5116538461538458
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -48,7 +69,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -61.60698057861702
   },
   "useDefaultConstraints": true
 }

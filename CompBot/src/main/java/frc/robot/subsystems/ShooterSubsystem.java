@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.RPM;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -12,6 +14,8 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.controller.BangBangController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ShooterSubsystem extends SubsystemBase {
@@ -23,6 +27,9 @@ public class ShooterSubsystem extends SubsystemBase {
   private final TalonFXConfiguration rightConfig = new TalonFXConfiguration();
 
   private final BangBangController shooterController = new BangBangController(3);
+  private final SlewRateLimiter shooterSlewRate = new SlewRateLimiter(0.75);
+
+  private double kMultiplier = 1.1;
 
   public enum shotState {
     HUB,
@@ -43,6 +50,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     //TEST IF WORKS
     rShooterFollower.setControl(new Follower(lShooterLeader.getDeviceID(), MotorAlignmentValue.Opposed));
+    SmartDashboard.putNumber("multiplier", 1.1);
   }
 
   /* only used for testing, do not use */
@@ -56,10 +64,16 @@ public class ShooterSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    kMultiplier = SmartDashboard.getNumber("multiplier", 1.1);
   }
 
   public void setShooter(double shooterSpeed){
-    lShooterLeader.set(shooterSpeed);
+    //lShooterLeader.set(shooterSpeed);
+    if(getShooterVelocity() < 40){
+      lShooterLeader.set(shooterSlewRate.calculate(shooterSpeed));
+    }else{
+      lShooterLeader.set(shooterController.calculate(shooterSpeed));
+    }
   }
 
   public void stopMotors(){
@@ -72,6 +86,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   //BANG BANG VELOCITY CONTROL (Needs testing)
   public void setShooterVelocity(double RPMs){
+    RPMs *= kMultiplier;
     lShooterLeader.set(
       shooterController.calculate(
         lShooterLeader.getVelocity().getValueAsDouble(),

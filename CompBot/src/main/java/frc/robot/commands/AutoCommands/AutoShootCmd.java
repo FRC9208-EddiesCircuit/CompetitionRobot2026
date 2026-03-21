@@ -23,8 +23,7 @@ public class AutoShootCmd extends Command {
   private HoodSubsystem hoodSubsystem;
   private AgitatorSubsystem agitatorSubsystem;
   private FeederSubsystem feederSubsystem;
-  private Supplier<Double> metersToHub;
-  private Supplier<Pose2d> currentPose;
+  private Supplier<Double> metersToHub, metersToPass;
   private shotState currentState;
 
   public AutoShootCmd(
@@ -33,14 +32,14 @@ public class AutoShootCmd extends Command {
     AgitatorSubsystem agitatorSubsystem, 
     FeederSubsystem feederSubsystem, 
     Supplier<Double> metersToHub, 
-    Supplier<Pose2d> currentPose) 
-  {
+    Supplier<Double> metersToPass
+  ){
     this.shooterSubsystem = shooterSubsystem;
     this.hoodSubsystem = hoodSubsystem;
     this.agitatorSubsystem = agitatorSubsystem;
     this.feederSubsystem = feederSubsystem;
     this.metersToHub = metersToHub;
-    this.currentPose = currentPose;
+    this.metersToPass = metersToPass;
 
     addRequirements(shooterSubsystem, hoodSubsystem);
   }
@@ -49,7 +48,7 @@ public class AutoShootCmd extends Command {
   @Override
   public void initialize() {
     CommandScheduler.getInstance().schedule(
-      new ShootCmd(shooterSubsystem, hoodSubsystem, agitatorSubsystem, feederSubsystem, () -> true, () -> false, metersToHub, currentPose)
+      new ShootCmd(shooterSubsystem, hoodSubsystem, agitatorSubsystem, feederSubsystem, () -> true, () -> false, metersToHub, metersToPass)
         .withTimeout(6.7)
     );
   }

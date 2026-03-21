@@ -25,34 +25,30 @@ public class HoodSubsystem extends SubsystemBase {
   private SparkMaxConfig hoodConfig = new SparkMaxConfig();
   private SparkClosedLoopController sparkPID;// = hoodMotor.getClosedLoopController();
 
-  private double defaultHoodRotations = 1;
+  private double defaultHoodRotations = 0;
   private double hoodRotations;
   private double testHoodRotations = 0;
 
-
+  private double distance;
 
   public HoodSubsystem() {
     hoodConfig.idleMode(IdleMode.kBrake);
     hoodConfig.inverted(true);
-    hoodConfig.closedLoop.p(0.3);
+    hoodConfig.closedLoop.p(0.35);
     //hoodConfig.closedLoop.p(0.3);
 
     hoodMotor.configure(hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     sparkPID = hoodMotor.getClosedLoopController();
 
-    SmartDashboard.putNumber("Hood Rotations", 0.0);
   }
 
   @Override
   public void periodic() {
-    this.testHoodRotations = SmartDashboard.getNumber("Hood Rotations", 0.0);
   }
 
   //This sets the rotations of the hoodMotor
   public void setRotations(double rotations) {
-    //hoodMotor.set(pivotPID.calculate(hoodMotor.getEncoder().getPosition(), rotations));
     sparkPID.setSetpoint(rotations, ControlType.kPosition);
-    System.out.println(getPosition());
   }
   //This sets the position of the hoodMotor
   public void setPosition(double position) {
@@ -92,8 +88,20 @@ public class HoodSubsystem extends SubsystemBase {
     setRotations(hoodRotations);
   }
 
-  public void adjustToPass(Pose2d currentPose2d){
-    setRotations(0);
+  public void adjustToPass(double metersToPass){
+    if(metersToPass < 1.85){
+      hoodRotations = 0;
+    }else if(metersToPass >= 1.85 && metersToPass < 2.53){
+      hoodRotations = 0;
+    }else if(metersToPass >= 2.53 && metersToPass < 3.12){
+      hoodRotations = 3.74197 * metersToPass - 9.43769;
+    }else if(metersToPass >= 3.12 && metersToPass < 3.6){
+      hoodRotations = 4.19842 * metersToPass - 13.0878;
+    }else if(metersToPass >= 3.6){
+      hoodRotations = 1.69201 * metersToPass - 5.02354;
+    }
+
+    setRotations(hoodRotations);
   }
 
   public void adjustToDefaultPosition(){

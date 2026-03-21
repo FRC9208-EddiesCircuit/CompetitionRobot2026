@@ -4,48 +4,48 @@
 
 package frc.robot.commands.AutoCommands;
 
-import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.IntakeCmd;
-import frc.robot.subsystems.AgitatorSubsystem;
-import frc.robot.subsystems.FeederSubsystem;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.commands.ShootCmd;
+import frc.robot.commands.PivotCmds.PivotDownCmd;
 import frc.robot.subsystems.IntakePivotSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class AutoIntakeCmd extends Command {
+public class AutoPivotDownCmd extends Command {
 
-  IntakeSubsystem intakeSubsystem;
   IntakePivotSubsystem intakePivotSubsystem;
-  AgitatorSubsystem agitatorSubsystem;
-  FeederSubsystem feederSubsystem;
-
-  public AutoIntakeCmd(IntakeSubsystem intakeSubsystem, IntakePivotSubsystem intakePivotSubsystem, AgitatorSubsystem agitatorSubsystem, FeederSubsystem feederSubsystem) {
-    this.intakeSubsystem = intakeSubsystem;
+  PivotDownCmd pivotDownCmd;
+  boolean pushDown;
+  public AutoPivotDownCmd(IntakePivotSubsystem intakePivotSubsystem) {
     this.intakePivotSubsystem = intakePivotSubsystem;
-    this.agitatorSubsystem = agitatorSubsystem;
-    this.feederSubsystem = feederSubsystem;
-
-    addRequirements(intakeSubsystem, intakePivotSubsystem, agitatorSubsystem, feederSubsystem);
+    addRequirements(intakePivotSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    pivotDownCmd = new PivotDownCmd(intakePivotSubsystem, () -> true);
     CommandScheduler.getInstance().schedule(
-      new IntakeCmd(intakeSubsystem, agitatorSubsystem, feederSubsystem, () -> 0.7)
-        .withTimeout(6.7)
+      pivotDownCmd
     );
   }
 
+
+
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    
+      intakePivotSubsystem.pivotDownIntake();
+    
+  }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    intakePivotSubsystem.stopMotor();
+  }
 
   // Returns true when the command should end.
   @Override

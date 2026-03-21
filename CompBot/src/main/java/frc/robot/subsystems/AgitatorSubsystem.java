@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.PersistMode;
@@ -14,8 +15,10 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class AgitatorSubsystem extends SubsystemBase {
   /** Creates a new AgitatorSubsystem. */
-  SparkMax agitatorMotor = new SparkMax(53, MotorType.kBrushless);
-  SparkMaxConfig agitatorConfig = new SparkMaxConfig();
+  private SparkMax agitatorMotor = new SparkMax(53, MotorType.kBrushless);
+  private SparkMaxConfig agitatorConfig = new SparkMaxConfig();
+  private SlewRateLimiter agitatorSlewRate = new SlewRateLimiter(0.2);
+
 
   public AgitatorSubsystem() {
     //Setting up configurations for the agitatorMotor
@@ -32,7 +35,8 @@ public class AgitatorSubsystem extends SubsystemBase {
 
   public void setAgitatorPower(double agitatorPower) {
     //This method allows for setting the agitatorMotor's speed
-    agitatorMotor.set(agitatorPower);
+    agitatorMotor.set(agitatorSlewRate.calculate(agitatorPower));
+    //agitatorMotor.set(agitatorPower);
   }
 
   public void stopAgitator() {
