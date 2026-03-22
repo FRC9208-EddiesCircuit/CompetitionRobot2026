@@ -110,7 +110,7 @@ public class IntakePivotSubsystem extends SubsystemBase {
   }
 
   public void pivotDownIntake(){
-    setRotations(getRotations() + 0.8);
+    setRotations(getRotations() + 0.7);
   }
 
 

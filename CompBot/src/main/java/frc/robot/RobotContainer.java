@@ -10,6 +10,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.FeedCmd;
 import frc.robot.commands.IntakeCmd;
 import frc.robot.commands.IntakePivotCmd;
+import frc.robot.commands.ReverseIntakeCmd;
 import frc.robot.commands.ShootCmd;
 import frc.robot.commands.ShootHubCmd;
 import frc.robot.commands.TestHoodCmd;
@@ -112,7 +113,7 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("ShootCmd", new ShootCmd(shooterSubsystem, hoodSubsystem, agitatorSubsystem, feederSubsystem, () -> true, () -> false, () -> metersToHub(), () -> metersToPass()));
     NamedCommands.registerCommand("IntakeCmd", new IntakeCmd(intakeSubsystem, agitatorSubsystem, feederSubsystem, () -> 0.7));
-    NamedCommands.registerCommand("PivotCmd", new PivotDownCmd(intakePivotSubsystem, () -> intakePivotSubsystem.intakeStopped()));
+    NamedCommands.registerCommand("PivotDownCmd", new PivotDownCmd(intakePivotSubsystem, () -> intakePivotSubsystem.intakeStopped()));
     NamedCommands.registerCommand("AimHubCmd", 
       drivetrain.applyRequest(() ->
         driveAndAimHub
@@ -220,6 +221,8 @@ public class RobotContainer {
         () -> controller.getLeftTriggerAxis()
       )
     );
+
+    controller.y().whileTrue(new ReverseIntakeCmd(intakeSubsystem));
 
 
 
