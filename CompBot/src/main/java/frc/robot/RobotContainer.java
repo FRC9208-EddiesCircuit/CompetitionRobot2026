@@ -239,7 +239,6 @@ public class RobotContainer {
       )
     );
 
-    controller.y().onTrue(intakePivotSubsystem.resetIntakePivotEncoder());
 
 
   }
