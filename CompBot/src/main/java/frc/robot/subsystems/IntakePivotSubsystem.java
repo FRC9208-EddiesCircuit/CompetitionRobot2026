@@ -25,7 +25,7 @@ public class IntakePivotSubsystem extends SubsystemBase {
   private final TalonFX intakePivotMotor = new TalonFX(52);
   private final TalonFXConfiguration intakePivotConfig = new TalonFXConfiguration();
   private final Slot0Configs pivotUpGains = new Slot0Configs()
-    .withKP(0.6) //not placeholder
+    .withKP(0.75)//0.6 //not placeholder
     .withKD(0.05)
     .withKS(0)
     .withKV(6)
@@ -47,12 +47,12 @@ public class IntakePivotSubsystem extends SubsystemBase {
   private final double upRotations = 0;
   private final double midRotations = 3.5
   ;
-  private final double downRotations = 8.5; //7.3;
+  private final double downRotations = 8;//8.5; //7.3;
 
   private final double rotationDeadband = 1;
 
   public IntakePivotSubsystem() {
-    intakePivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    intakePivotConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     intakePivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     intakePivotConfig.withCurrentLimits(new CurrentLimitsConfigs()
       .withStatorCurrentLimit(80)//need to verify
@@ -110,7 +110,7 @@ public class IntakePivotSubsystem extends SubsystemBase {
   }
 
   public void pivotDownIntake(){
-    setRotations(getRotations() + 0.7);
+    setRotations(getRotations() + 0.5);
   }
 
 

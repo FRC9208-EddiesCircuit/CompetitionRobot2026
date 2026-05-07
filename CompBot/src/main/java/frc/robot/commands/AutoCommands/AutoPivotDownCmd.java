@@ -25,10 +25,7 @@ public class AutoPivotDownCmd extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    pivotDownCmd = new PivotDownCmd(intakePivotSubsystem, () -> true);
-    CommandScheduler.getInstance().schedule(
-      pivotDownCmd
-    );
+
   }
 
 
@@ -36,9 +33,7 @@ public class AutoPivotDownCmd extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    
-      intakePivotSubsystem.pivotDownIntake();
-    
+
   }
 
   // Called once the command ends or is interrupted.

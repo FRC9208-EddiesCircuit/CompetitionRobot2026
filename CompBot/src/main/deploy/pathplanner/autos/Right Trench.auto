@@ -21,7 +21,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Left Trench to Center"
+                        "pathName": "Right Trench Center Exp"
                       }
                     },
                     {
@@ -39,7 +39,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Center to Shoot Left"
+            "pathName": "Center Right Shoot Exp"
           }
         },
         {
@@ -65,7 +65,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 2.0
+                        "waitTime": 1.5
                       }
                     },
                     {

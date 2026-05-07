@@ -11,7 +11,6 @@ import org.opencv.features2d.AgastFeatureDetector;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.AgitatorSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakePivotSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -20,14 +19,13 @@ import frc.robot.subsystems.IntakeSubsystem;
 public class IntakeCmd extends Command {
 
   IntakeSubsystem intakeSubsystem;
-  AgitatorSubsystem agitatorSubsystem;
   FeederSubsystem feederSubsystem;
   Supplier<Double> intakeSpeed;
   private PreFeedCmd preFeedCmd;
 
-  public IntakeCmd(IntakeSubsystem intakeSubsystem, AgitatorSubsystem agitatorSubsystem, FeederSubsystem feederSubsystem, Supplier<Double> intakeSpeed) {
+  public IntakeCmd(IntakeSubsystem intakeSubsystem, FeederSubsystem feederSubsystem, Supplier<Double> intakeSpeed) {
     this.intakeSubsystem = intakeSubsystem;
-    this.agitatorSubsystem = agitatorSubsystem;
+    //this.agitatorSubsystem = agitatorSubsystem;
     this.feederSubsystem = feederSubsystem;
     this.intakeSpeed = intakeSpeed;
 

@@ -8,6 +8,7 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.IntakeCmd;
+import frc.robot.commands.PivotCmds.PivotDownCmd;
 import frc.robot.subsystems.AgitatorSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakePivotSubsystem;
@@ -18,34 +19,42 @@ public class AutoIntakeCmd extends Command {
 
   IntakeSubsystem intakeSubsystem;
   IntakePivotSubsystem intakePivotSubsystem;
-  AgitatorSubsystem agitatorSubsystem;
   FeederSubsystem feederSubsystem;
 
-  public AutoIntakeCmd(IntakeSubsystem intakeSubsystem, IntakePivotSubsystem intakePivotSubsystem, AgitatorSubsystem agitatorSubsystem, FeederSubsystem feederSubsystem) {
+  PivotDownCmd pivotDownCmd;
+
+  public AutoIntakeCmd(IntakeSubsystem intakeSubsystem, IntakePivotSubsystem intakePivotSubsystem, FeederSubsystem feederSubsystem) {
     this.intakeSubsystem = intakeSubsystem;
     this.intakePivotSubsystem = intakePivotSubsystem;
-    this.agitatorSubsystem = agitatorSubsystem;
     this.feederSubsystem = feederSubsystem;
 
-    addRequirements(intakeSubsystem, intakePivotSubsystem, agitatorSubsystem, feederSubsystem);
+    addRequirements(intakeSubsystem, intakePivotSubsystem, feederSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    pivotDownCmd = new PivotDownCmd(intakePivotSubsystem, () -> intakePivotSubsystem.intakeStopped());
     CommandScheduler.getInstance().schedule(
-      new IntakeCmd(intakeSubsystem, agitatorSubsystem, feederSubsystem, () -> 0.7)
-        .withTimeout(6.7)
+      pivotDownCmd
     );
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    intakeSubsystem.intake();
+    if(pivotDownCmd.isFinished()){
+      intakePivotSubsystem.pivotDownIntake();
+    }
+  }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    intakeSubsystem.stopMotor();
+    intakePivotSubsystem.stopMotor();
+  }
 
   // Returns true when the command should end.
   @Override

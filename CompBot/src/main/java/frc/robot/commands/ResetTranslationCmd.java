@@ -4,46 +4,40 @@
 
 package frc.robot.commands;
 
-import java.util.function.Supplier;
-
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj2.command.Command;
-//import frc.robot.subsystems.AgitatorSubsystem;
-import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.LimelightHelpers;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class FeedCmd extends Command {
-  //private AgitatorSubsystem agitatorSubsystem;
-  private FeederSubsystem feederSubsystem;
-  private boolean finish = false;
+public class ResetTranslationCmd extends Command {
 
-  public FeedCmd(FeederSubsystem feederSubsystem) {
-    //this.agitatorSubsystem = agitatorSubsystem;
-    this.feederSubsystem = feederSubsystem;
+  CommandSwerveDrivetrain drivetrain;
+  Pose2d currentPose;
+  boolean finish = false;
+  
 
-    addRequirements(feederSubsystem);
+  public ResetTranslationCmd(CommandSwerveDrivetrain drivetrain) {
+    this.drivetrain = drivetrain;
+    addRequirements(drivetrain);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    //agitatorSubsystem.setAgitatorPower(0.67);
-    feederSubsystem.setFeederPower(0.67);
-  }
-
-  public void finish(){
+  public void initialize() {
+    currentPose = LimelightHelpers.getBotPose2d_wpiBlue("Limelight-Anarchy");
+    drivetrain.resetTranslation(currentPose.getTranslation());
     finish = true;
   }
 
+  // Called every time the scheduler runs while the command is scheduled.
+  @Override
+  public void execute() {}
+
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    //agitatorSubsystem.stopAgitator();
-    feederSubsystem.stopFeeder();
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override

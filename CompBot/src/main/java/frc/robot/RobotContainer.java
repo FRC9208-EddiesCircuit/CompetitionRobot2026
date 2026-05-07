@@ -39,6 +39,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -111,8 +112,8 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Mode", autoChooser);
 
 
-    NamedCommands.registerCommand("ShootCmd", new ShootCmd(shooterSubsystem, hoodSubsystem, agitatorSubsystem, feederSubsystem, () -> true, () -> false, () -> metersToHub(), () -> metersToPass()));
-    NamedCommands.registerCommand("IntakeCmd", new IntakeCmd(intakeSubsystem, agitatorSubsystem, feederSubsystem, () -> 0.7));
+    NamedCommands.registerCommand("ShootCmd", new ShootCmd(shooterSubsystem, hoodSubsystem, feederSubsystem, () -> true, () -> false, () -> metersToHub(), () -> metersToPass()));
+    NamedCommands.registerCommand("IntakeCmd", new IntakeCmd(intakeSubsystem, feederSubsystem, () -> 0.7));
     NamedCommands.registerCommand("PivotDownCmd", new PivotDownCmd(intakePivotSubsystem, () -> intakePivotSubsystem.intakeStopped()));
     NamedCommands.registerCommand("AimHubCmd", 
       drivetrain.applyRequest(() ->
@@ -215,14 +216,12 @@ public class RobotContainer {
     controller.axisGreaterThan(2, 0.1).whileTrue(
       new IntakeCmd(
         intakeSubsystem, 
-        
-        agitatorSubsystem,
         feederSubsystem,
         () -> controller.getLeftTriggerAxis()
       )
     );
 
-    controller.y().whileTrue(new ReverseIntakeCmd(intakeSubsystem));
+    controller.y().whileTrue(new ReverseIntakeCmd(intakeSubsystem, feederSubsystem));
 
 
 
@@ -230,7 +229,6 @@ public class RobotContainer {
       new ShootCmd(
         shooterSubsystem, 
         hoodSubsystem, 
-        agitatorSubsystem, 
         feederSubsystem, 
         () -> twistJS.getRawButton(1), 
         () -> twistJS.getRawButton(3), 
@@ -239,9 +237,24 @@ public class RobotContainer {
       )
     );
 
-
-
   }
+
+  public void hubActivationSignal(){
+    double rumble = 0;
+
+    //fix to what austin wants
+    if(HubActiveHelper.timeTillHubActive() > 9 && HubActiveHelper.timeTillHubActive() < 10){
+      rumble = 0.3;
+    }else if(HubActiveHelper.timeTillHubActive() < 5 && HubActiveHelper.timeTillHubActive() > 2){
+      rumble = -0.3 * HubActiveHelper.timeTillHubActive() + 1.6;
+    }else if(HubActiveHelper.timeTillHubActive() <= 2){
+      rumble = 0;
+    }
+
+
+    controller.setRumble(RumbleType.kBothRumble, rumble);
+  }
+
 
   /*
    * Calculates the angle at which the hub is to the robot.
@@ -266,6 +279,7 @@ public class RobotContainer {
     }
   }
 
+  //needs fixed or debate whether passing is worth it
   public Rotation2d calcPassAngle(){
     if (DriverStation.getAlliance().get() == Alliance.Red) {
       angleToHub = new Rotation2d(

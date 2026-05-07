@@ -8,46 +8,46 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.33974358974359,
-        "y": 2.6396153846153845
+        "x": 7.351371794871796,
+        "y": 0.9884102564102579
       },
       "isLocked": false,
       "linkedName": "Right Center Exp"
     },
     {
       "anchor": {
-        "x": 6.246692307692309,
-        "y": 2.523333333333334
+        "x": 4.014076923076924,
+        "y": 0.5697948717948724
       },
       "prevControl": {
-        "x": 6.595538461538463,
-        "y": 2.5117051282051284
+        "x": 6.095600981415744,
+        "y": 0.49034738865217103
       },
       "nextControl": {
-        "x": 5.6767523786935365,
-        "y": 2.542331330966627
+        "x": 2.4907820512820535,
+        "y": 0.6279358974358971
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.979166666666668,
-        "y": 2.523333333333334
+        "x": 2.8512564102564113,
+        "y": 1.5698205128205132
       },
       "prevControl": {
-        "x": 3.5722051282051286,
-        "y": 2.5465897435897444
+        "x": 2.828000000000001,
+        "y": 0.9535256410256421
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Center Right Shoot Exp"
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 1,
-      "rotationDegrees": 51.51980175165689
+      "rotationDegrees": -0.7848246029918985
     }
   ],
   "constraintZones": [],

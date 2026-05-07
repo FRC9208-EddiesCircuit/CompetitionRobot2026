@@ -50,7 +50,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     //TEST IF WORKS
     rShooterFollower.setControl(new Follower(lShooterLeader.getDeviceID(), MotorAlignmentValue.Opposed));
-    SmartDashboard.putNumber("multiplier", 1.1);
+    SmartDashboard.putNumber("multiplier", 1.2);
   }
 
   /* only used for testing, do not use */

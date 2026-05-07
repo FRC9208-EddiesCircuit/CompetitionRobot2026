@@ -10,7 +10,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.ShootCmd;
-import frc.robot.subsystems.AgitatorSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -21,7 +20,6 @@ public class AutoShootCmd extends Command {
 
   private ShooterSubsystem shooterSubsystem;
   private HoodSubsystem hoodSubsystem;
-  private AgitatorSubsystem agitatorSubsystem;
   private FeederSubsystem feederSubsystem;
   private Supplier<Double> metersToHub, metersToPass;
   private shotState currentState;
@@ -29,14 +27,12 @@ public class AutoShootCmd extends Command {
   public AutoShootCmd(
     ShooterSubsystem shooterSubsystem,
     HoodSubsystem hoodSubsystem, 
-    AgitatorSubsystem agitatorSubsystem, 
     FeederSubsystem feederSubsystem, 
     Supplier<Double> metersToHub, 
     Supplier<Double> metersToPass
   ){
     this.shooterSubsystem = shooterSubsystem;
     this.hoodSubsystem = hoodSubsystem;
-    this.agitatorSubsystem = agitatorSubsystem;
     this.feederSubsystem = feederSubsystem;
     this.metersToHub = metersToHub;
     this.metersToPass = metersToPass;
@@ -48,7 +44,7 @@ public class AutoShootCmd extends Command {
   @Override
   public void initialize() {
     CommandScheduler.getInstance().schedule(
-      new ShootCmd(shooterSubsystem, hoodSubsystem, agitatorSubsystem, feederSubsystem, () -> true, () -> false, metersToHub, metersToPass)
+      new ShootCmd(shooterSubsystem, hoodSubsystem, feederSubsystem, () -> true, () -> false, metersToHub, metersToPass)
         .withTimeout(6.7)
     );
   }

@@ -9,7 +9,6 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.AgitatorSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -20,7 +19,6 @@ public class ShootCmd extends Command {
 
   private ShooterSubsystem shooterSubsystem;
   private HoodSubsystem hoodSubsystem;
-  private AgitatorSubsystem agitatorSubsystem;
   private FeederSubsystem feederSubsystem;
   private Supplier<Boolean> hubShot, passShot;
   private Supplier<Double> metersToHub, metersToPass;
@@ -40,7 +38,6 @@ public class ShootCmd extends Command {
   public ShootCmd(
     ShooterSubsystem shooterSubsystem,
     HoodSubsystem hoodSubsystem, 
-    AgitatorSubsystem agitatorSubsystem, 
     FeederSubsystem feederSubsystem, 
     Supplier<Boolean> hubShot, Supplier<Boolean> passShot, 
     Supplier<Double> metersToHub, 
@@ -48,7 +45,6 @@ public class ShootCmd extends Command {
   {
     this.shooterSubsystem = shooterSubsystem;
     this.hoodSubsystem = hoodSubsystem;
-    this.agitatorSubsystem = agitatorSubsystem;
     this.feederSubsystem = feederSubsystem;
     this.hubShot = hubShot;
     this.passShot = passShot;
@@ -61,7 +57,7 @@ public class ShootCmd extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    feedCmd = new FeedCmd(agitatorSubsystem, feederSubsystem);
+    feedCmd = new FeedCmd(feederSubsystem);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -87,7 +83,7 @@ public class ShootCmd extends Command {
         shooterVelocity = adjustShooterVelocity(metersToPass.get());
         break;
       case DEFAULT:
-        hoodSubsystem.adjustToDefaultPosition();
+        hoodSubsystem.adjustToHub(metersToHub.get());
         shooterVelocity = defaultShooterVelocity;
         break;    
       default:
@@ -109,11 +105,11 @@ public class ShootCmd extends Command {
     }else if(metersToHub >= 1.85 && metersToHub < 2.53){
       calculatedVelocity = 8.59005 * metersToHub + 28.34849;
     }else if(metersToHub >= 2.53 && metersToHub < 3.12){
-      calculatedVelocity = 50;
+      calculatedVelocity = 50;//calculatedVelocity = 50 * 1.2;//calculatedVelocity = 50;
     }else if(metersToHub >= 3.12 && metersToHub < 3.6){
-      calculatedVelocity = 60;
+       calculatedVelocity = 60;//calculatedVelocity = 60 * 1.6;//calculatedVelocity = 60;
     }else if(metersToHub >= 3.6){
-      calculatedVelocity = 65;
+       calculatedVelocity = 65;//calculatedVelocity = 65 * 1.3;//calculatedVelocity = 65;
     }
     return calculatedVelocity;
   }
