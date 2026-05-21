@@ -64,16 +64,23 @@ public class ShootCmd extends Command {
   @Override
   public void execute() {
     //meters = hoodSubsystem.getTestHoodRotations() + 0.3495;
+    currentState = shotState.DEMO; // Hardcoded Demo branch override
+    double demoVelocity = 35.0;
 
-    if(hubShot.get()){
-      currentState = shotState.HUB;
-    }else if(passShot.get()){
-      currentState = shotState.PASS;
-    }else{
-      currentState = shotState.DEFAULT;
-    }
+    // if(hubShot.get()){
+    //   currentState = shotState.HUB;
+    // }else if(passShot.get()){
+    //   currentState = shotState.PASS;
+    // }else{
+    //   currentState = shotState.DEFAULT;
+    // }
 
     switch (currentState) {
+      case DEMO:
+        // hardcoded above for memorial day demo branch
+        hoodSubsystem.setRotations(0);
+        shooterVelocity = demoVelocity; // low velocity for small space
+      break;
       case HUB:
         hoodSubsystem.adjustToHub(metersToHub.get());
         shooterVelocity = adjustShooterVelocity(metersToHub.get());//(meters);

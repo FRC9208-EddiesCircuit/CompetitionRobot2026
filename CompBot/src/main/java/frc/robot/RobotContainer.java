@@ -182,14 +182,26 @@ public class RobotContainer {
     new JoystickButton(twistJS, 2).whileTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
     new JoystickButton(twistJS, 1).whileTrue(
-      drivetrain.applyRequest(() ->
-        driveAndAimHub
-          .withVelocityX(-driveJS.getRawAxis(1) * MaxSpeed)
-          .withVelocityY(-driveJS.getRawAxis(0) * MaxSpeed)
-          .withTargetDirection(
-            calcHubAngle()
-          )
+      // Disable autoalign for Memorial Day Demo - for single driver, let this button shoot instead
+
+      // drivetrain.applyRequest(() ->
+      //   driveAndAimHub
+      //     .withVelocityX(-driveJS.getRawAxis(1) * MaxSpeed)
+      //     .withVelocityY(-driveJS.getRawAxis(0) * MaxSpeed)
+      //     .withTargetDirection(
+      //       calcHubAngle()
+      //     )
+      // )
+      new ShootCmd( //Shoot command is hardcoded to DEMO mode in ShootCmd.java
+        shooterSubsystem, 
+        hoodSubsystem, 
+        feederSubsystem, 
+        () -> false,  // hubShot - unused in DEMO mode
+        () -> false,  // passShot - unused in DEMO mode
+        () -> 0.0,    // metersToHub - unused in DEMO mode
+        () -> 0.0     // metersToPass - unused in DEMO mode
       )
+
     );
 
     new JoystickButton(twistJS, 3).whileTrue(  //find button
