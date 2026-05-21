@@ -32,6 +32,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private double kMultiplier = 1.1;
 
   public enum shotState {
+    DEMO,
     HUB,
     PASS,
     DEFAULT
